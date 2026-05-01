@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, type ReactNode } from "react";
+import { useState, type ReactNode, type FormEvent } from "react";
 import { 
   Bell, 
   Mail, 
@@ -93,6 +93,25 @@ export default function App() {
   const [notifications, setNotifications] = useState<Notification[]>(MOCK_NOTIFICATIONS);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showConnectModal, setShowConnectModal] = useState(false);
+  const [connectedAccounts, setConnectedAccounts] = useState([
+    { id: "g1", type: "gmail" as Service, name: "Primary Gmail", address: "neazmorshed55@gmail.com" },
+    { id: "s1", type: "slack" as Service, name: "Workspace", address: "SyncHub Team" }
+  ]);
+  const [newEmail, setNewEmail] = useState("");
+
+  const addGmailAccount = (e: FormEvent) => {
+    e.preventDefault();
+    if (newEmail && newEmail.includes("@")) {
+      const newAcc = {
+        id: Math.random().toString(36).substr(2, 9),
+        type: "gmail" as Service,
+        name: "Gmail Account",
+        address: newEmail
+      };
+      setConnectedAccounts([...connectedAccounts, newAcc]);
+      setNewEmail("");
+    }
+  };
 
   const filteredNotifications = activeService === "all" 
     ? notifications 
@@ -159,15 +178,22 @@ export default function App() {
               />
             </div>
             
+            <div className="mt-8 px-4 mb-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-blue-400">My Accounts</div>
+            <div className="px-2 space-y-1">
+              {connectedAccounts.filter(acc => acc.type === "gmail").map(acc => (
+                <NavItem 
+                  key={acc.id}
+                  active={activeService === "gmail"} 
+                  onClick={() => { setActiveService("gmail"); setIsSidebarOpen(false); }}
+                  icon={<Mail className="w-4 h-4" />}
+                  label={acc.address.split('@')[0]}
+                  indicatorColor="bg-red-500"
+                />
+              ))}
+            </div>
+
             <div className="mt-8 px-4 mb-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Channels</div>
             <div className="px-2 space-y-1">
-              <NavItem 
-                active={activeService === "gmail"} 
-                onClick={() => { setActiveService("gmail"); setIsSidebarOpen(false); }}
-                icon={<Mail className="w-4 h-4" />}
-                label="Gmail"
-                indicatorColor="bg-red-500"
-              />
               <NavItem 
                 active={activeService === "slack"} 
                 onClick={() => { setActiveService("slack"); setIsSidebarOpen(false); }}
@@ -354,11 +380,45 @@ export default function App() {
               </button>
               
               <h3 className="text-xl font-bold text-slate-900 mb-2">Connect Channels</h3>
-              <p className="text-sm text-slate-500 mb-8">Establish secure connections to aggregate notifications.</p>
+              <p className="text-sm text-slate-500 mb-6">Establish secure connections to aggregate notifications.</p>
+              
+              <div className="mb-8 space-y-4">
+                <form onSubmit={addGmailAccount} className="space-y-2">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Add Gmail Account</label>
+                  <div className="flex gap-2">
+                    <input 
+                      type="email" 
+                      value={newEmail}
+                      onChange={(e) => setNewEmail(e.target.value)}
+                      placeholder="email@gmail.com" 
+                      className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                    />
+                    <button 
+                      type="submit"
+                      className="px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-bold shadow-lg shadow-blue-600/20 hover:bg-blue-700 transition-all"
+                    >
+                      Connect
+                    </button>
+                  </div>
+                </form>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Current Accounts</label>
+                  <div className="max-h-40 overflow-y-auto space-y-2 pr-2">
+                    {connectedAccounts.map(acc => (
+                      <div key={acc.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-200/60">
+                        <div className="flex items-center gap-3">
+                          {acc.type === "gmail" ? <Mail className="w-3 h-3 text-red-500" /> : <Slack className="w-3 h-3 text-purple-500" />}
+                          <span className="text-[12px] font-medium text-slate-700">{acc.address}</span>
+                        </div>
+                        <CheckCircle2 className="w-3 h-3 text-green-500" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
               
               <div className="space-y-3">
-                <ConnectListItem icon={<Mail className="text-red-500 w-4 h-4" />} name="Gmail API" status="Connected" />
-                <ConnectListItem icon={<Slack className="text-purple-500 w-4 h-4" />} name="Slack Webhook" status="Ready" />
                 <ConnectListItem icon={<MessageSquare className="text-indigo-500 w-4 h-4" />} name="Discord Bot" status="Ready" />
                 <ConnectListItem icon={<Send className="text-blue-400 w-4 h-4" />} name="Telegram API" status="Ready" />
                 <ConnectListItem icon={<MessageSquare className="text-green-500 w-4 h-4" />} name="WhatsApp" status="Unavailable" />
@@ -397,7 +457,8 @@ function NavItem({ active, onClick, icon, label, badge, indicatorColor }: {
   icon: ReactNode, 
   label: string,
   badge?: number,
-  indicatorColor?: string
+  indicatorColor?: string,
+  key?: string | number
 }) {
   return (
     <button 
