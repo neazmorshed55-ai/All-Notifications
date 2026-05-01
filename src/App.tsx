@@ -27,7 +27,7 @@ import {
 import { motion, AnimatePresence } from "motion/react";
 
 // Types
-type Service = "gmail" | "slack" | "discord" | "telegram" | "whatsapp";
+type Service = "gmail" | "slack" | "discord" | "telegram" | "whatsapp" | "trello";
 
 interface Notification {
   id: string;
@@ -37,6 +37,13 @@ interface Notification {
   timestamp: Date;
   sender: string;
   read: boolean;
+}
+
+interface Account {
+  id: string;
+  type: Service;
+  name: string;
+  address: string;
 }
 
 // Mock Data
@@ -57,6 +64,15 @@ const MOCK_NOTIFICATIONS: Notification[] = [
     message: "Neaz: I've updated the Figma designs for the notification hub.",
     timestamp: new Date(Date.now() - 1000 * 60 * 15),
     sender: "SyncHub Team",
+    read: false,
+  },
+  {
+    id: "6",
+    service: "trello",
+    title: "Card Moved",
+    message: "Deployment Checklist moved to 'Done' by Neaz.",
+    timestamp: new Date(Date.now() - 1000 * 60 * 30),
+    sender: "Main Board",
     read: false,
   },
   {
@@ -93,18 +109,26 @@ export default function App() {
   const [notifications, setNotifications] = useState<Notification[]>(MOCK_NOTIFICATIONS);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showConnectModal, setShowConnectModal] = useState(false);
-  const [connectedAccounts, setConnectedAccounts] = useState([
-    { id: "g1", type: "gmail" as Service, name: "Primary Gmail", address: "neazmorshed55@gmail.com" },
-    { id: "s1", type: "slack" as Service, name: "Workspace", address: "SyncHub Team" }
+  const [connectedAccounts, setConnectedAccounts] = useState<Account[]>([
+    { id: "g1", type: "gmail", name: "Primary Gmail", address: "neazmorshed55@gmail.com" },
+    { id: "w1", type: "whatsapp", name: "Personal", address: "+880123456789" },
+    { id: "w2", type: "whatsapp", name: "Work", address: "+880987654321" },
+    { id: "d1", type: "discord", name: "Gaming Hub", address: "NeazDev#1234" },
+    { id: "d2", type: "discord", name: "Team Server", address: "morshed.dev" },
+    { id: "s1", type: "slack", name: "SyncHub Workspace", address: "synchub-team.slack.com" },
+    { id: "s2", type: "slack", name: "Freelance", address: "client-corp.slack.com" },
+    { id: "t1", type: "telegram", name: "Main Account", address: "@neazmorshed" },
+    { id: "t2", type: "telegram", name: "Bot Controls", address: "@synchub_bot" },
+    { id: "tr1", type: "trello", name: "Project Board", address: "Trello Main" }
   ]);
   const [newEmail, setNewEmail] = useState("");
 
   const addGmailAccount = (e: FormEvent) => {
     e.preventDefault();
     if (newEmail && newEmail.includes("@")) {
-      const newAcc = {
+      const newAcc: Account = {
         id: Math.random().toString(36).substr(2, 9),
-        type: "gmail" as Service,
+        type: "gmail",
         name: "Gmail Account",
         address: newEmail
       };
@@ -126,6 +150,7 @@ export default function App() {
       case "discord": return <MessageSquare className="w-4 h-4 text-indigo-500" />;
       case "telegram": return <Send className="w-4 h-4 text-blue-400" />;
       case "whatsapp": return <MessageSquare className="w-4 h-4 text-green-500" />;
+      case "trello": return <LayoutDashboard className="w-4 h-4 text-blue-600" />;
     }
   };
 
@@ -178,50 +203,109 @@ export default function App() {
               />
             </div>
             
-            <div className="mt-8 px-4 mb-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-blue-400">My Accounts</div>
-            <div className="px-2 space-y-1">
-              {connectedAccounts.filter(acc => acc.type === "gmail").map(acc => (
-                <NavItem 
-                  key={acc.id}
-                  active={activeService === "gmail"} 
-                  onClick={() => { setActiveService("gmail"); setIsSidebarOpen(false); }}
-                  icon={<Mail className="w-4 h-4" />}
-                  label={acc.address.split('@')[0]}
-                  indicatorColor="bg-red-500"
-                />
-              ))}
-            </div>
+            <div className="mt-8 px-4 mb-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-blue-400">My Channels</div>
+            <div className="px-2 space-y-4">
+              {/* WhatsApp Group */}
+              <div className="space-y-1">
+                <div className="px-4 flex items-center justify-between">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase">WhatsApp</span>
+                  <div className="w-1.5 h-1.5 rounded-full bg-green-500"></div>
+                </div>
+                {connectedAccounts.filter(acc => acc.type === "whatsapp").map(acc => (
+                  <NavItem 
+                    key={acc.id}
+                    active={activeService === "whatsapp"} 
+                    onClick={() => { setActiveService("whatsapp"); setIsSidebarOpen(false); }}
+                    icon={<MessageSquare className="w-4 h-4" />}
+                    label={acc.name}
+                  />
+                ))}
+              </div>
 
-            <div className="mt-8 px-4 mb-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Channels</div>
-            <div className="px-2 space-y-1">
-              <NavItem 
-                active={activeService === "slack"} 
-                onClick={() => { setActiveService("slack"); setIsSidebarOpen(false); }}
-                icon={<Slack className="w-4 h-4" />}
-                label="Slack"
-                indicatorColor="bg-purple-500"
-              />
-              <NavItem 
-                active={activeService === "discord"} 
-                onClick={() => { setActiveService("discord"); setIsSidebarOpen(false); }}
-                icon={<MessageSquare className="w-4 h-4" />}
-                label="Discord"
-                indicatorColor="bg-indigo-500"
-              />
-              <NavItem 
-                active={activeService === "telegram"} 
-                onClick={() => { setActiveService("telegram"); setIsSidebarOpen(false); }}
-                icon={<Send className="w-4 h-4" />}
-                label="Telegram"
-                indicatorColor="bg-sky-400"
-              />
-              <NavItem 
-                active={activeService === "whatsapp"} 
-                onClick={() => { setActiveService("whatsapp"); setIsSidebarOpen(false); }}
-                icon={<MessageSquare className="w-4 h-4" />}
-                label="WhatsApp"
-                indicatorColor="bg-green-500"
-              />
+              {/* Discord Group */}
+              <div className="space-y-1">
+                <div className="px-4 flex items-center justify-between">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase">Discord</span>
+                  <div className="w-1.5 h-1.5 rounded-full bg-indigo-500"></div>
+                </div>
+                {connectedAccounts.filter(acc => acc.type === "discord").map(acc => (
+                  <NavItem 
+                    key={acc.id}
+                    active={activeService === "discord"} 
+                    onClick={() => { setActiveService("discord"); setIsSidebarOpen(false); }}
+                    icon={<MessageSquare className="w-4 h-4" />}
+                    label={acc.name}
+                  />
+                ))}
+              </div>
+
+              {/* Slack Group */}
+              <div className="space-y-1">
+                <div className="px-4 flex items-center justify-between">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase">Slack</span>
+                  <div className="w-1.5 h-1.5 rounded-full bg-purple-500"></div>
+                </div>
+                {connectedAccounts.filter(acc => acc.type === "slack").map(acc => (
+                  <NavItem 
+                    key={acc.id}
+                    active={activeService === "slack"} 
+                    onClick={() => { setActiveService("slack"); setIsSidebarOpen(false); }}
+                    icon={<Slack className="w-4 h-4" />}
+                    label={acc.name}
+                  />
+                ))}
+              </div>
+
+              {/* Telegram Group */}
+              <div className="space-y-1">
+                <div className="px-4 flex items-center justify-between">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase">Telegram</span>
+                  <div className="w-1.5 h-1.5 rounded-full bg-sky-400"></div>
+                </div>
+                {connectedAccounts.filter(acc => acc.type === "telegram").map(acc => (
+                  <NavItem 
+                    key={acc.id}
+                    active={activeService === "telegram"} 
+                    onClick={() => { setActiveService("telegram"); setIsSidebarOpen(false); }}
+                    icon={<Send className="w-4 h-4" />}
+                    label={acc.name}
+                  />
+                ))}
+              </div>
+
+              {/* Gmail Group */}
+              <div className="space-y-1">
+                <div className="px-4 flex items-center justify-between">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase">Gmail</span>
+                  <div className="w-1.5 h-1.5 rounded-full bg-red-500"></div>
+                </div>
+                {connectedAccounts.filter(acc => acc.type === "gmail").map(acc => (
+                  <NavItem 
+                    key={acc.id}
+                    active={activeService === "gmail"} 
+                    onClick={() => { setActiveService("gmail"); setIsSidebarOpen(false); }}
+                    icon={<Mail className="w-4 h-4" />}
+                    label={acc.address.split('@')[0]}
+                  />
+                ))}
+              </div>
+
+              {/* Trello Group */}
+              <div className="space-y-1">
+                <div className="px-4 flex items-center justify-between">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase">Trello</span>
+                  <div className="w-1.5 h-1.5 rounded-full bg-blue-600"></div>
+                </div>
+                {connectedAccounts.filter(acc => acc.type === "trello").map(acc => (
+                  <NavItem 
+                    key={acc.id}
+                    active={activeService === "trello"} 
+                    onClick={() => { setActiveService("trello"); setIsSidebarOpen(false); }}
+                    icon={<LayoutDashboard className="w-4 h-4" />}
+                    label={acc.name}
+                  />
+                ))}
+              </div>
             </div>
           </div>
 
@@ -404,12 +488,15 @@ export default function App() {
 
                 <div className="space-y-2">
                   <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Current Accounts</label>
-                  <div className="max-h-40 overflow-y-auto space-y-2 pr-2">
+                  <div className="max-h-60 overflow-y-auto space-y-2 pr-2">
                     {connectedAccounts.map(acc => (
                       <div key={acc.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-200/60">
                         <div className="flex items-center gap-3">
-                          {acc.type === "gmail" ? <Mail className="w-3 h-3 text-red-500" /> : <Slack className="w-3 h-3 text-purple-500" />}
-                          <span className="text-[12px] font-medium text-slate-700">{acc.address}</span>
+                          {getServiceIcon(acc.type)}
+                          <div>
+                            <p className="text-[12px] font-bold text-slate-900 leading-none mb-0.5">{acc.name}</p>
+                            <p className="text-[10px] font-medium text-slate-400">{acc.address}</p>
+                          </div>
                         </div>
                         <CheckCircle2 className="w-3 h-3 text-green-500" />
                       </div>
@@ -419,9 +506,10 @@ export default function App() {
               </div>
               
               <div className="space-y-3">
+                <ConnectListItem icon={<LayoutDashboard className="text-blue-600 w-4 h-4" />} name="Trello Workspace" status="Connected" />
                 <ConnectListItem icon={<MessageSquare className="text-indigo-500 w-4 h-4" />} name="Discord Bot" status="Ready" />
                 <ConnectListItem icon={<Send className="text-blue-400 w-4 h-4" />} name="Telegram API" status="Ready" />
-                <ConnectListItem icon={<MessageSquare className="text-green-500 w-4 h-4" />} name="WhatsApp" status="Unavailable" />
+                <ConnectListItem icon={<MessageSquare className="text-green-500 w-4 h-4" />} name="WhatsApp Business" status="Ready" />
               </div>
               
               <button 
@@ -493,6 +581,7 @@ function ServiceAvatar({ service, sender }: { service: Service, sender: string }
       case "discord": return "bg-indigo-50 text-indigo-600";
       case "telegram": return "bg-sky-50 text-sky-600";
       case "whatsapp": return "bg-green-50 text-green-600";
+      case "trello": return "bg-blue-50 text-blue-600";
     }
   };
 
@@ -503,6 +592,7 @@ function ServiceAvatar({ service, sender }: { service: Service, sender: string }
       case "discord": return "DS";
       case "telegram": return "TG";
       case "whatsapp": return "WA";
+      case "trello": return "TR";
     }
   };
 
