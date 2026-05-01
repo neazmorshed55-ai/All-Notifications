@@ -22,12 +22,13 @@ import {
   CheckCircle2,
   Clock,
   Shield,
-  Smartphone
+  Smartphone,
+  Zap
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
 // Types
-type Service = "gmail" | "slack" | "discord" | "telegram" | "whatsapp" | "trello";
+type Service = "gmail" | "slack" | "discord" | "telegram" | "whatsapp" | "trello" | "zapier";
 
 interface Notification {
   id: string;
@@ -196,6 +197,7 @@ export default function App() {
       case "telegram": return <Send className="w-4 h-4 text-blue-400" />;
       case "whatsapp": return <MessageSquare className="w-4 h-4 text-green-500" />;
       case "trello": return <LayoutDashboard className="w-4 h-4 text-blue-600" />;
+      case "zapier": return <Zap className="w-4 h-4 text-orange-500" />;
     }
   };
 
@@ -616,6 +618,36 @@ export default function App() {
                 <ConnectListItem icon={<Send className="text-blue-400 w-4 h-4" />} name="Telegram API" status="Ready" />
                 <ConnectListItem icon={<MessageSquare className="text-green-500 w-4 h-4" />} name="WhatsApp Business" status="Ready" />
               </div>
+
+              <div className="mt-8 pt-6 border-t border-slate-100">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-8 h-8 bg-orange-50 rounded-lg flex items-center justify-center">
+                    <Zap className="w-4 h-4 text-orange-500" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-slate-900">Zapier / Webhook Integration</h4>
+                    <p className="text-[10px] text-slate-400 font-medium">Connect 5000+ apps via automated workflows</p>
+                  </div>
+                </div>
+                
+                <div className="space-y-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                  <p className="text-[11px] text-slate-500 leading-relaxed">
+                    Zapier-এ <strong>"Webhooks by Zapier"</strong> ব্যবহার করে নিচের URL-এ POST রিকোয়েস্ট পাঠান। 
+                  </p>
+                  <div className="flex gap-2">
+                    <input 
+                      readOnly
+                      value="https://api.synchub.io/v1/webhook/nz_55..." 
+                      className="flex-1 bg-white border border-slate-200 rounded-lg px-3 py-2 text-[10px] font-mono text-slate-500 outline-none"
+                    />
+                    <button className="px-3 py-2 bg-slate-900 text-white text-[10px] font-bold rounded-lg hover:bg-slate-800">Copy URL</button>
+                  </div>
+                  <div className="flex items-center gap- outline-none mt-1">
+                    <span className="text-[9px] bg-orange-100 text-orange-700 px-2 py-0.5 rounded font-bold uppercase tracking-tighter">Recommended</span>
+                    <span className="text-[9px] text-slate-400 ml-2 italic">Supports JSON payloads {`{ title, message, sender }`}</span>
+                  </div>
+                </div>
+              </div>
               
               <button 
                 onClick={() => setShowConnectModal(false)}
@@ -689,6 +721,7 @@ function ServiceAvatar({ service, sender }: { service: Service, sender: string }
       case "telegram": return "bg-sky-50 text-sky-600";
       case "whatsapp": return "bg-green-50 text-green-600";
       case "trello": return "bg-blue-50 text-blue-600";
+      case "zapier": return "bg-orange-50 text-orange-600";
     }
   };
 
@@ -700,6 +733,7 @@ function ServiceAvatar({ service, sender }: { service: Service, sender: string }
       case "telegram": return "TG";
       case "whatsapp": return "WA";
       case "trello": return "TR";
+      case "zapier": return "ZP";
     }
   };
 
