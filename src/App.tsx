@@ -551,22 +551,22 @@ export default function App() {
                     <span className="text-[10px] font-mono font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded">QR LINK READY</span>
                   </div>
                   
-                  <div className="grid grid-cols-[80px_1fr] gap-4 mb-4">
-                    <div className="w-20 h-20 bg-white border border-slate-200 rounded-lg flex items-center justify-center p-2 shrink-0">
+                  <div className="flex flex-col xs:flex-row gap-4 mb-4">
+                    <div className="w-20 h-20 bg-white border border-slate-200 rounded-lg flex items-center justify-center p-2 shrink-0 self-center xs:self-start">
                       <div className="w-full h-full bg-slate-900 rounded-[2px] opacity-10 flex items-center justify-center relative overflow-hidden">
                         <div className="absolute inset-0 bg-[repeating-linear-gradient(45deg,transparent,transparent_5px,#000_5px,#000_10px)] opacity-20" />
                         <span className="text-[8px] font-bold text-white relative z-10 bg-slate-900 px-1">QR CODE</span>
                       </div>
                     </div>
-                    <div className="space-y-2">
+                    <div className="space-y-2 flex-1">
                       <p className="text-[11px] text-slate-500 leading-tight">আপনার ফোন থেকে <span className="font-bold">Settings {'->'} Linked Devices</span> এ গিয়ে এই কোডটি স্ক্যান করুন।</p>
                       <div className="flex gap-2">
                         <input 
                           type="text" 
                           placeholder="+880..." 
-                          className="flex-1 bg-white border border-slate-200 rounded-lg px-3 py-1 text-[11px] outline-none focus:ring-1 focus:ring-green-500"
+                          className="flex-1 min-w-0 bg-white border border-slate-200 rounded-lg px-3 py-1 text-[11px] outline-none focus:ring-1 focus:ring-green-500"
                         />
-                        <button className="px-3 py-1 bg-green-600 text-white text-[10px] font-bold rounded-lg">Add Number</button>
+                        <button className="whitespace-nowrap px-3 py-1 bg-green-600 text-white text-[10px] font-bold rounded-lg hover:bg-green-700 transition-colors">Add Number</button>
                       </div>
                     </div>
                   </div>
@@ -574,17 +574,17 @@ export default function App() {
 
                 <form onSubmit={addGmailAccount} className="space-y-2">
                   <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Add Gmail Account</label>
-                  <div className="flex gap-2">
+                  <div className="flex flex-col xs:flex-row gap-2">
                     <input 
                       type="email" 
                       value={newEmail}
                       onChange={(e) => setNewEmail(e.target.value)}
                       placeholder="email@gmail.com" 
-                      className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                      className="flex-1 min-w-0 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
                     />
                     <button 
                       type="submit"
-                      className="px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-bold shadow-lg shadow-blue-600/20 hover:bg-blue-700 transition-all"
+                      className="whitespace-nowrap px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-bold shadow-lg shadow-blue-600/20 hover:bg-blue-700 transition-all active:scale-95"
                     >
                       Connect
                     </button>
@@ -630,9 +630,11 @@ export default function App() {
 
       <style dangerouslySetInnerHTML={{ __html: `
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-        
-        :root {
+        @import "tailwindcss";
+
+        @theme {
           --font-sans: 'Inter', system-ui, sans-serif;
+          --breakpoint-xs: 480px;
         }
 
         body {
