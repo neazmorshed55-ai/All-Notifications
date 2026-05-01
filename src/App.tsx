@@ -546,23 +546,28 @@ export default function App() {
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
                       <MessageSquare className="w-4 h-4 text-green-500" />
-                      <span className="text-sm font-bold">WhatsApp Linking</span>
+                      <span className="text-sm font-bold">WhatsApp Sync (Web Bridge)</span>
                     </div>
-                    <span className="text-[10px] font-mono font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded">WEB BRIDGE ACTIVE</span>
+                    <span className="text-[10px] font-mono font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded">QR LINK READY</span>
                   </div>
-                  <div className="flex gap-4 items-center">
+                  
+                  <div className="grid grid-cols-[80px_1fr] gap-4 mb-4">
                     <div className="w-20 h-20 bg-white border border-slate-200 rounded-lg flex items-center justify-center p-2 shrink-0">
                       <div className="w-full h-full bg-slate-900 rounded-[2px] opacity-10 flex items-center justify-center relative overflow-hidden">
                         <div className="absolute inset-0 bg-[repeating-linear-gradient(45deg,transparent,transparent_5px,#000_5px,#000_10px)] opacity-20" />
                         <span className="text-[8px] font-bold text-white relative z-10 bg-slate-900 px-1">QR CODE</span>
                       </div>
                     </div>
-                    <div>
-                      <p className="text-[11px] text-slate-500 leading-tight mb-2">Scan this QR code with your WhatsApp mobile app (Linked Devices) to sync messages.</p>
-                      <ul className="text-[10px] space-y-1 text-slate-400 font-medium">
-                        <li>• Supports Multi-device beta</li>
-                        <li>• End-to-end encrypted</li>
-                      </ul>
+                    <div className="space-y-2">
+                      <p className="text-[11px] text-slate-500 leading-tight">আপনার ফোন থেকে <span className="font-bold">Settings {'->'} Linked Devices</span> এ গিয়ে এই কোডটি স্ক্যান করুন।</p>
+                      <div className="flex gap-2">
+                        <input 
+                          type="text" 
+                          placeholder="+880..." 
+                          className="flex-1 bg-white border border-slate-200 rounded-lg px-3 py-1 text-[11px] outline-none focus:ring-1 focus:ring-green-500"
+                        />
+                        <button className="px-3 py-1 bg-green-600 text-white text-[10px] font-bold rounded-lg">Add Number</button>
+                      </div>
                     </div>
                   </div>
                 </div>
