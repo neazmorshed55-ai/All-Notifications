@@ -111,8 +111,8 @@ export default function App() {
   const [showConnectModal, setShowConnectModal] = useState(false);
   const [connectedAccounts, setConnectedAccounts] = useState<Account[]>([
     { id: "g1", type: "gmail", name: "Primary Gmail", address: "neazmorshed55@gmail.com" },
-    { id: "w1", type: "whatsapp", name: "Personal", address: "+880123456789" },
-    { id: "w2", type: "whatsapp", name: "Work", address: "+880987654321" },
+    { id: "wa_1", type: "whatsapp", name: "Personal WhatsApp", address: "+8801775939996" },
+    { id: "wa_2", type: "whatsapp", name: "Secondary WhatsApp", address: "+8801789778722" },
     { id: "d1", type: "discord", name: "Gaming Hub", address: "NeazDev#1234" },
     { id: "d2", type: "discord", name: "Team Server", address: "morshed.dev" },
     { id: "s1", type: "slack", name: "SyncHub Workspace", address: "synchub-team.slack.com" },
