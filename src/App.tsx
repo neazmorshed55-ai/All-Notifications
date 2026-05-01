@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, type ReactNode, type FormEvent } from "react";
+import { useState, useEffect, type ReactNode, type FormEvent } from "react";
 import { 
   Bell, 
   Mail, 
@@ -109,6 +109,7 @@ export default function App() {
   const [notifications, setNotifications] = useState<Notification[]>(MOCK_NOTIFICATIONS);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showConnectModal, setShowConnectModal] = useState(false);
+  const [isLiveSync, setIsLiveSync] = useState(true);
   const [connectedAccounts, setConnectedAccounts] = useState<Account[]>([
     { id: "g1", type: "gmail", name: "Primary Gmail", address: "neazmorshed55@gmail.com" },
     { id: "wa_1", type: "whatsapp", name: "Personal WhatsApp", address: "+8801775939996" },
@@ -122,6 +123,50 @@ export default function App() {
     { id: "tr1", type: "trello", name: "Project Board", address: "Trello Main" }
   ]);
   const [newEmail, setNewEmail] = useState("");
+
+  const requestNotificationPermission = async () => {
+    if ("Notification" in window) {
+      const permission = await Notification.requestPermission();
+      if (permission === "granted") {
+        new Notification("SyncHub Live", {
+          body: "Real-time notifications are now active!",
+          icon: "/favicon.ico"
+        });
+      }
+    }
+  };
+
+  const simulateIncomingNotification = () => {
+    const services: Service[] = ["gmail", "whatsapp", "slack", "discord"];
+    const randomService = services[Math.floor(Math.random() * services.length)];
+    const newNotif: Notification = {
+      id: Math.random().toString(36).substr(2, 9),
+      service: randomService,
+      title: "New Incoming Feed",
+      message: "This is a real-time simulation message arriving at " + new Date().toLocaleTimeString(),
+      timestamp: new Date(),
+      sender: "Live System",
+      read: false,
+    };
+    
+    setNotifications(prev => [newNotif, ...prev]);
+
+    if ("Notification" in window && Notification.permission === "granted") {
+      new Notification(`SyncHub: ${randomService.toUpperCase()}`, {
+        body: newNotif.message,
+      });
+    }
+  };
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isLiveSync) {
+      interval = setInterval(() => {
+        if (Math.random() > 0.7) simulateIncomingNotification();
+      }, 15000); // Simulate every 15s with 30% chance
+    }
+    return () => clearInterval(interval);
+  }, [isLiveSync]);
 
   const addGmailAccount = (e: FormEvent) => {
     e.preventDefault();
@@ -425,14 +470,31 @@ export default function App() {
                     </button>
                   </div>
 
-                  <div className="bg-slate-900 p-6 rounded-2xl text-white shadow-xl relative overflow-hidden group">
+                            <div className="bg-slate-900 p-6 rounded-2xl text-white shadow-xl relative overflow-hidden group">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/20 blur-3xl -mr-16 -mt-16 group-hover:bg-blue-500/30 transition-colors" />
                     <h3 className="text-sm font-bold mb-2 relative z-10">Omni-Channel Sync</h3>
                     <p className="text-xs opacity-70 leading-relaxed mb-4 relative z-10">You have successfully integrated 5 accounts into your unified workflow.</p>
-                    <div className="flex gap-2 relative z-10">
-                      <div className="w-6 h-6 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center"><Mail className="w-3 h-3" /></div>
-                      <div className="w-6 h-6 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center"><Slack className="w-3 h-3" /></div>
-                      <div className="w-6 h-6 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center"><Send className="w-3 h-3" /></div>
+                    <div className="flex flex-col gap-3 relative z-10">
+                      <div className="flex gap-2">
+                        <div className="w-6 h-6 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center"><Mail className="w-3 h-3" /></div>
+                        <div className="w-6 h-6 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center"><Slack className="w-3 h-3" /></div>
+                        <div className="w-6 h-6 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center"><Send className="w-3 h-3" /></div>
+                      </div>
+                      <button 
+                        onClick={simulateIncomingNotification}
+                        className="w-full py-2 bg-blue-500 hover:bg-blue-400 text-white rounded-lg text-[10px] font-bold uppercase tracking-widest transition-colors"
+                      >
+                        Test Real-time Feed
+                      </button>
+                      <div className="flex items-center justify-between mt-2 pt-2 border-t border-white/10">
+                        <span className="text-[10px] font-bold opacity-50 uppercase">Live Simulation</span>
+                        <button 
+                          onClick={() => setIsLiveSync(!isLiveSync)}
+                          className={`w-8 h-4 rounded-full transition-colors relative ${isLiveSync ? "bg-blue-500" : "bg-white/20"}`}
+                        >
+                          <div className={`absolute top-0.5 w-3 h-3 rounded-full bg-white transition-all ${isLiveSync ? "left-4.5" : "left-0.5"}`} />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -465,6 +527,19 @@ export default function App() {
               
               <h3 className="text-xl font-bold text-slate-900 mb-2">Connect Channels</h3>
               <p className="text-sm text-slate-500 mb-6">Establish secure connections to aggregate notifications.</p>
+
+              <div className="mb-6 p-4 bg-blue-50 border border-blue-100 rounded-2xl flex items-center justify-between">
+                <div>
+                  <p className="text-[13px] font-bold text-blue-900">Push Notifications</p>
+                  <p className="text-[11px] text-blue-700">Receive alerts even when the app is closed.</p>
+                </div>
+                <button 
+                  onClick={requestNotificationPermission}
+                  className="px-3 py-1.5 bg-blue-600 text-white text-[10px] font-bold uppercase rounded-lg hover:bg-blue-700"
+                >
+                  Enable
+                </button>
+              </div>
               
               <div className="mb-8 space-y-4">
                 <form onSubmit={addGmailAccount} className="space-y-2">
