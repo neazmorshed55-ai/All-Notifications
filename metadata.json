@@ -1,0 +1,6 @@
+{
+  "name": "SyncHub - Unified Notifications",
+  "description": "A unified dashboard to aggregate notifications from Gmail, Slack, Discord, Telegram, and WhatsApp.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
